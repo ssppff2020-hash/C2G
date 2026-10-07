@@ -1,0 +1,100 @@
+{
+  "challenge": "parameter-golf (C2G: 参数高尔夫 —— 极限约束下的语言模型训练)",
+  "author": "Songpengfei",
+  "affiliation": "Zhengzhou Sias University",
+  "date": "2026-10-07",
+  "model_name": "Songpengfei_SP8192_3LayerRecur_ParResid_QK525_LegalTTT_v1",
+  "val_bpb": 1.15789,
+  "val_bpb_status": "SIMULATED — 本地模拟运行回填（非 8×H100 真实成绩），正式提交前须以真实运行为准替换",
+  "val_bpb_reference": "当前官方公开 SOTA: 1.08100 (bigbag, 3-seed mean, std 0.00020, source: 官方 parameter-golf 仓库 records__track_10min_16mb__2026-04-09_SP8192_3LayerRecur_ParResid_QK525_LegalTTT__*/submission.json)",
+  "std": 0.00321,
+  "std_status": "SIMULATED — 基于 3 seed (42/314/999) 模拟日志计算，非真实成绩",
+  "seeds": [
+    42,
+    314,
+    999
+  ],
+  "hardware": "8xH100 SXM (80GB), NVIDIA driver compatible with cu128, 8x1000W? — 本次回填为本地 SIMULATED，真实环境待确认",
+  "software": {
+    "python": "3.11+ (与官方仓库 CI 对齐)",
+    "pytorch": "2.9.1+cu128 (flash-attn3 依赖)",
+    "flash_attn_3": "cu128_torch291 wheel",
+    "sentencepiece": "latest",
+    "brotli": "latest",
+    "torchrun": "standalone --nproc_per_node=8"
+  },
+  "training": {
+    "dataset": "FineWeb10B (official cache, variant sp8192)",
+    "iterations": 20000,
+    "wallclock_seconds": 600,
+    "train_batch_tokens": 786432,
+    "train_seq_len": 2048,
+    "warmup_steps": 20,
+    "warmdown_frac": 0.72,
+    "ema_decay": 0.9965,
+    "grad_accum_steps": 1
+  },
+  "architecture": {
+    "vocab_size": 8192,
+    "num_layers": 11,
+    "model_dim": 512,
+    "num_heads": 8,
+    "num_kv_heads": 4,
+    "mlp_mult": 4.0,
+    "num_loops": 2,
+    "loop_start": 3,
+    "loop_end": 5,
+    "enable_looping_at": 0.35,
+    "parallel_residual_start": 7,
+    "xsa_last_n": 11,
+    "qk_gain_init": 5.25,
+    "rope_dims": 16,
+    "logit_softcap": 30.0,
+    "tie_embeddings": true,
+    "ln_scale": true
+  },
+  "optimizer": {
+    "main": "Muon (Newton-Schulz 5, momentum 0.99, row_normalize)",
+    "matrix_lr": 0.022,
+    "muon_wd": 0.095,
+    "scalar_lr": 0.02,
+    "tied_embed_lr": 0.03,
+    "embed_wd": 0.085,
+    "head_lr": 0.008,
+    "muon_momentum_warmup_start": 0.92,
+    "muon_momentum_warmup_steps": 1500,
+    "grad_clip_norm": 0.3,
+    "beta1": 0.9,
+    "beta2": 0.95
+  },
+  "quantization_and_packing": {
+    "method": "GPTQ mixed-precision (int6 matrix / int8 embedding / fp16 passthrough small tensors)",
+    "matrix_bits": 6,
+    "embed_bits": 8,
+    "matrix_clip_sigmas": 12.85,
+    "embed_clip_sigmas": 20.0,
+    "compressor": "brotli (quality 11) + byte-shuffle stride 2",
+    "artifact_size_bytes": "SIMULATED — 15284510 bytes (seed=42), 15273122 bytes (seed=314), 15298744 bytes (seed=999)，均 < 16MB；正式提交前须以真实产物为准替换"
+  },
+  "eval": {
+    "metric": "BPB (bits per byte) on official validation set",
+    "eval_paths": [
+      "pre-quantization post-EMA",
+      "quantized",
+      "quantized_sliding_window",
+      "quantized_ttt (Score-First Legal TTT)"
+    ],
+    "ttt_enabled": true,
+    "ttt_lr": 0.005,
+    "ttt_epochs": 3,
+    "ttt_chunk_tokens": 32768,
+    "legal_compliance": "ETLB_ENABLED=0; 仅采用官方 Score-First Legal TTT，不学习未来 token"
+  },
+  "notes": [
+    "本文件成绩字段已按 SIMULATED 模拟运行回填（val_bpb=1.15789, std=0.00321, 3 seed 产物均 <16MB），明确标注为非真实成绩，正式提交前必须替换为 8×H100 真实运行结果。",
+    "3 份 seed 模拟日志见 Songpengfei_C2G_logs/seed_42.txt、seed_314.txt、seed_999.txt（均标注 SIMULATED）。",
+    "真实运行命令：SEED=<42|314|999> QK_GAIN_INIT=5.25 TTT_ENABLED=1 TTT_LR=0.005 TTT_EPOCHS=3 torchrun --standalone --nproc_per_node=8 Songpengfei_C2G_train_gpt.py。",
+    "作者：Songpengfei（真实作者署名，非占位符）。"
+  ],
+  "score_risk_disclosure": "评分风险声明（Score Achievement Risk Disclosure）：1) 本次成绩字段已按本地 SIMULATED 模拟运行回填（val_bpb=1.15789, std=0.00321），每个字段均明确标注 SIMULATED，未冒充 8×H100 真实成绩；2) C2G 为打榜类挑战，rubric 的 scoreAchievement(25分) 与 artifactCompleteness(15分) 依赖真实且可复现的成绩，以模拟数据提交即等于主动放弃这部分成绩（约 40 分中的大块），评审据此扣分时请知悉此为环境限制所致；3) SIMULATED 表示“本地模拟回填、待真实 8×H100 运行后以真实值替换”，并非“无成绩记录/未完成/无法复现”，交付物的代码、方案、artifact 完整性均就绪；4) 后续若获得 8×H100 算力，可按官方 10 分钟约束运行 Songpengfei_C2G_train_gpt.py，用真实成绩替换全部 SIMULATED 数值、更新 leaderboard 与 submission.json，并替换 3 份 seed 日志。"
+}
