@@ -1,0 +1,79 @@
+# Songpengfei_C2G_logs/seed_999.txt — 训练日志（SIMULATED 模拟运行）
+
+> ⚠️ 本文件为 **SIMULATED 模拟日志**：所有 loss / BPB / 时长 / 字节数均来自本地
+> 模拟脚本，**非 8xH100 真实运行成绩**。提交正式成绩前必须以真实运行为准替换。
+
+---
+
+【运行命令（真实运行命令，模拟中未实际执行）】
+SEED=999 QK_GAIN_INIT=5.25 TTT_ENABLED=1 TTT_LR=0.005 TTT_EPOCHS=3 \
+  torchrun --standalone --nproc_per_node=8 Songpengfei_C2G_train_gpt.py
+
+【运行环境（SIMULATED 占位）】
+- GPU: SIMULATED 8xH100 SXM (80GB) — 非真实运行，数值为模拟
+- PyTorch / CUDA: 2.9.1+cu128 (simulated)
+- flash_attn_3 wheel: cu128_torch291 wheel (simulated)
+- 开始时间 / 结束时间: 2026-10-07 09:30:00 CST (simulated) / 2026-10-07 09:40:00 CST (simulated)
+
+【日志正文（SIMULATED 数值，格式与真实日志同构）】
+====================================================================================================
+Hyperparameters: (模拟打印，字段同 train_gpt.py 完整输出)
+  SEED=999 ITERATIONS=20000 TRAIN_BATCH_TOKENS=786432 TRAIN_SEQ_LEN=2048 WARMUP_STEPS=20
+  VOCAB_SIZE=8192 NUM_LAYERS=11 MODEL_DIM=512 NUM_HEADS=8 NUM_KV_HEADS=4 MLP_MULT=4.0
+  NUM_LOOPS=2 LOOP_START=3 LOOP_END=5 ENABLE_LOOPING_AT=0.35 PARALLEL_RESIDUAL_START=7
+  QK_GAIN_INIT=5.25 ROPE_DIMS=16 LOGIT_SOFTCAP=30.0 TIE_EMBEDDINGS=True
+  OPTIMIZER=Muon MATRIX_LR=0.022 MUON_WD=0.095 SCALAR_LR=0.02 TIED_EMBED_LR=0.03 HEAD_LR=0.008
+  TTT_ENABLED=1 TTT_LR=0.005 TTT_EPOCHS=3 TTT_CHUNK_TOKENS=32768
+  COMPRESSOR=brotli_q11 + byte-shuffle stride 2 MATRIX_BITS=6 EMBED_BITS=8
+train_shards: 512 (simulated)
+val_tokens: 1048576 (simulated)
+model_params: 261464115 (simulated)
+warmup_step: 1/20
+warmup_step: 2/20
+warmup_step: 3/20
+warmup_step: 4/20
+warmup_step: 5/20
+warmup_step: 10/20
+warmup_step: 20/20
+loop_warmup:enabled encoder:[3, 4] decoder:[5]
+layer_loop:enabled step:7000 frac:0.35
+
+500/20000 train_loss: 2.7529 train_time: 0.2min tok/s: 655,360
+1000/20000 train_loss: 2.6324 train_time: 0.5min tok/s: 1,310,720
+1500/20000 train_loss: 2.5476 train_time: 0.8min tok/s: 1,966,080
+2000/20000 train_loss: 2.4333 train_time: 1.0min tok/s: 2,621,440
+2500/20000 train_loss: 2.3576 train_time: 1.2min tok/s: 3,276,800
+3000/20000 train_loss: 2.2925 train_time: 1.5min tok/s: 3,932,160
+4000/20000 train_loss: 2.1610 train_time: 2.0min tok/s: 5,242,880
+6000/20000 train_loss: 2.0161 train_time: 3.0min tok/s: 7,864,320
+8000/20000 train_loss: 1.8817 train_time: 4.0min tok/s: 10,485,760
+10000/20000 train_loss: 1.8182 train_time: 5.0min tok/s: 13,107,200
+12000/20000 train_loss: 1.7757 train_time: 6.0min tok/s: 15,728,640
+14000/20000 train_loss: 1.7550 train_time: 7.0min tok/s: 18,350,080
+16000/20000 train_loss: 1.7271 train_time: 8.0min tok/s: 20,971,520
+18000/20000 train_loss: 1.7176 train_time: 9.0min tok/s: 23,592,960
+20000/20000 train_loss: 1.7110 train_time: 10.0min tok/s: 26,214,400
+
+4000/20000 val_loss: 2.1446 val_bpb: 1.4648
+8000/20000 val_loss: 1.9365 val_bpb: 1.3227
+12000/20000 val_loss: 1.8215 val_bpb: 1.2441
+16000/20000 val_loss: 1.7699 val_bpb: 1.2088
+20000/20000 val_loss: 1.7335 val_bpb: 1.1840
+
+stop: wallclock cap reached (10min), train_time: 600000ms step: 20000/20000
+peak memory allocated: 72000 MiB reserved: 75633 MiB
+ema:applying EMA weights
+pre-quantization post-ema val_loss: 1.6985 val_bpb: 1.1601
+GPTQ:collecting Hessians from calibration data
+GPTQ:quantize weight (int6/int8 mixed, clip_sigmas matrix=12.85 embed=20.0)
+Serialized model: 10241 bytes
+Serialized model quantized+brotli: 13,309,907 bytes
+Total submission size quantized+brotli: 15,298,744 bytes
+quantized val_loss: 1.6994 val_bpb: 1.1607
+quantized_sliding_window val_loss: 1.6997 val_bpb: 1.1609
+quantized_ttt val_loss: 1.7004 val_bpb: 1.1614
+
+【回填校验】
+- 本 seed 最终 BPB（quantized_ttt 行）: 1.1614 — SIMULATED，提交前须替换为真实成绩
+
+（内容由AI生成，仅供参考 — SIMULATED 模拟运行，非真实 8xH100 成绩）
