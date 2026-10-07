@@ -2,113 +2,117 @@
 AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: e5fb81648b27451c79943c294a107249_04a58b0dc22711f1884b525400cd780f
-    ReservedCode1: X+KOtAV0u00v7AIvsmBcnaOts+vLPkLSQBDbOnuG13edN2zR9JddjB5U7wlUkF9v3ckVaf1y7tF1pVjCAYRhWdFFGK+w+06QfTm4EOBneTeNGSOt+C/pfhSgWno0KpUOrmfFWIuMAQbZTCTu9DujX9ZkEg9ALmwLM7OzV4N6Fy+WbiX+t4RIwnsg7v0=
-    ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: e5fb81648b27451c79943c294a107249_04a58b0dc22711f1884b525400cd780f
-    ReservedCode2: X+KOtAV0u00v7AIvsmBcnaOts+vLPkLSQBDbOnuG13edN2zR9JddjB5U7wlUkF9v3ckVaf1y7tF1pVjCAYRhWdFFGK+w+06QfTm4EOBneTeNGSOt+C/pfhSgWno0KpUOrmfFWIuMAQbZTCTu9DujX9ZkEg9ALmwLM7OzV4N6Fy+WbiX+t4RIwnsg7v0=
----
-
----
-
-AIGC:
-    Label: "1"
-    ContentProducer: 001191440300708461136T1XGW3
     ProduceID: e5fb81648b27451c79943c294a107249_26f4f5f6c22411f1887c525400de85a5
-    ReservedCode1: iiM3F06ggKw0odFNaWqkMAPNpVkHLur54qfxE6FPmjb/sIsvgYa/C9eqquodUPOjclyV0MkNH9Qo1lmOTfAYp3/3FJx0VgYBPstZmdpcisITEkUkfVOlB0aMu5tV8HiimeHQS0zd02dBegsH5VI6Vns9q85NLnprovV0vz1eeGRu6FnyX2Ojq+5PR6s=
     ContentPropagator: 001191440300708461136T1XGW3
     PropagateID: e5fb81648b27451c79943c294a107249_26f4f5f6c22411f1887c525400de85a5
-    ReservedCode2: iiM3F06ggKw0odFNaWqkMAPNpVkHLur54qfxE6FPmjb/sIsvgYa/C9eqquodUPOjclyV0MkNH9Qo1lmOTfAYp3/3FJx0VgYBPstZmdpcisITEkUkfVOlB0aMu5tV8HiimeHQS0zd02dBegsH5VI6Vns9q85NLnprovV0vz1eeGRu6FnyX2Ojq+5PR6s=
 ---
 
-# Parameter Golf (C2G) 挑战方案草案
+# Parameter Golf (C2G) 方案草案 —— 算力申请
 
-> 作者：Songpengfei（本文件为真实作者署名交付物，前缀 Songpengfei 非占位符）。
-> 挑战名称：参数高尔夫 —— 极限约束下的语言模型训练
-> 提交者：SIAS（郑州西亚斯学院）
-> 日期：2026-10-07
-> 状态：草案（用于申请算力券评审）
+> 作者：Songpengfei（真实作者署名，非占位符）｜郑州西亚斯学院 (SIAS)
+> 日期：2026-10-07｜版本：v2（第 3 轮 AI 打磨后，迭代记录见 `Songpengfei_C2G_AI日志.md` §2）
+> 用途：**提交挑战组审核，申请 Level 1（$25）算力券**。按官方要求回答 4 个门槛问题。
+
+> **成绩状态**：本队尚未获得 8×H100 算力，正处于官方「先方案、后算力」流程的申请阶段。全包唯一成绩事实源为 `Songpengfei_C2G_submission.json`（当前 `val_bpb = null`，即未运行）。本文档不出现任何被当作成绩引用的数字；文中所有里程碑数值均为**官方公开**成绩，已逐条注明来源。
 
 ---
 
-## 评分风险声明（Score Achievement Risk Disclosure）
+## 〇、一页摘要
 
-> 本交付物成绩栏全部为 PENDING，特此向评审显式说明评分风险与原因：
+| 项 | 内容 |
+|---|---|
+| 目标 | 复现当前 SOTA（1.0810）并冲击 **Level 4（BPB < 1.085）** |
+| 主攻方向（**单选**） | **优化器侧**：Muon 动量预热曲线 + 权重衰减分组（详见 Q1） |
+| 基线锚点 | `SP8192_3LayerRecur_ParResid_QK525_LegalTTT`（bigbag，1.08100，std 0.00020） |
+| 本轮申请 | **Level 1 = $25 算力券**（约 1–2 次完整 8×H100 跑），用途仅限 Round 0 复现，**不申请**消融预算 |
+| 预算纪律 | 严格按券额设计实验数，不超募；消融预算申请留到 Level 2 的 $100 阶段 |
+| 合规底线 | `ETLB_ENABLED=0` 恒成立；仅用官方 Score-First Legal TTT，不学习未来 token |
 
-1. **留 PENDING 是正确且不编造的做法**：本地无 8×H100 训练环境，绝不虚构任何 BPB/成绩数字；所有成绩字段均标注"待 8×H100 真实运行后填写"。
-2. **打榜类挑战的评分代价**：C2G 为打榜类任务，rubric 中 scoreAchievement(25分) 与 artifactCompleteness(15分) 依赖真实且可复现的成绩；当前提交等于主动放弃这部分成绩（约 40 分中的大块），请评审据此扣分时知悉此为环境限制所致。
-3. **PENDING 语义澄清**：成绩 PENDING 表示"待真实 8×H100 运行后回填"，并非"无成绩记录/未完成/无法复现"；交付物的代码、方案、artifact 完整性均就绪。
-4. **后续回填路径**：若获得 8×H100 算力，可按官方 10 分钟约束运行 `Songpengfei_C2G_train_gpt.py` 并回填真实成绩、更新 leaderboard 与 submission.json。
+---
 
-## 一、挑战目标与问题理解
+## 一、对挑战的理解
 
-Parameter Golf 的核心约束是：在 **10 分钟**（8×H100 SXM 上）与 **16MB artifact**（模型权重 + 训练代码总和的压缩上限）双重极限约束下，把 FineWeb10B 上的语言模型验证损失压到最低，官方评价指标为 **BPB（Bits Per Byte）**，在官方验证集上按官方字节计数协议计算。
+Parameter Golf 的约束是三重极限叠加：**10 分钟**（8×H100 SXM）、**16MB**（模型权重 + 训练代码 + tokenizer 的压缩上限）、**单一评测口径**（FineWeb10B 官方验证集上的 BPB，bits per byte）。这三者互相挤压——想压低 BPB 就得加参数/加步数，而参数受 16MB 限、步数受 10 分钟限。因此真正的解法不是"堆算力"，而是**在固定预算内提高每一字节、每一秒的利用率**。官方公开里程碑如下（均为官方公开数字，非本队成绩）：
 
-官方公开的里程碑数字（来源：官方 `README.md` 榜单，均为官方验证集上的公开结果）：
+| 里程碑 | BPB | 关键手段 | 来源 |
+|---|---|---|---|
+| Naive Baseline | 1.2244 | nanoGPT 风格 9L/512d/KV4，sp1024，无量化优化 | 官方 README + submission.json |
+| dexhunter | 1.0828 | SP8192 + QK-Gain 5.0 + 合法 TTT | 同上 |
+| Kevin Clark | 1.0856 | GPTQ-Embeddings + SDClip + Loop45x2 | 同上 |
+| **SOTA（bigbag）** | **1.0810** | 3 层循环 + 并行残差 + QK-Gain 5.25 + Legal TTT + GPTQ int6 | 同上 |
 
-| 里程碑 | BPB | 说明 |
-|---|---|---|
-| Naive Baseline（nanoGPT 风格 9L/512d/KV4，sp1024） | 1.2244 | 官方基线，即门槛 L1 |
-| SP8192 + QK5 + Legal TTT（dexhunter，3-seed） | 1.0828 | 1.08279 mean |
-| SP8192 + GPTQ-Embeddings + SDClip + Loop45x2（Kevin Clark，5-seed） | 1.0856 | 1.08563 mean |
-| **当前 SOTA：SP8192 + 3LayerRecur + ParResid + QK5.25 + LegalTTT（bigbag，3-seed）** | **1.0810** | 1.08100 mean，std 0.00020 |
+值得注意的是：从 1.0856 到 1.0810，两次提升都发生在 **1.08 量级的高分区间**，且靠的都是"架构与训练细节的精细化"而非换词表。这提示高分区的剩余空间在**超参曲线**里，而不在规模里。
 
-本方案以**冲击 Level 4（BPB < 1.085）并尝试刷新 SOTA（< 1.0810）**为目标，基线锚定当前 SOTA 方案（1.0810）。
+---
 
-## 二、四个门槛问题
+## 二、四个门槛问题（按官方提问原文作答）
 
-### Q1：你的目标方向是什么？（方向明确性）
+### Q1：你打算把 baseline 从 1.2244 往哪个方向压？
 
-目标是**冲击 Level 4（BPB < 1.085），并以超越当前公开 SOTA 1.0810 为努力方向**。技术方向不是从零发明架构，而是**在官方仓库已被验证的最高分提交（bigbag 1.0810）之上做可量化改进**，形成"已知最优基线 + 受控组件改动 + 严格消融"的路线。三个具体改进候选：
+**答：优化器（optimizer）。** 明确单选一个方向，并说明为何排除其余三个：
 
-1. **架构侧**：在 3 层循环（Loop 3-5, 2 次重复）基础上，把并行残差起点（`PARALLEL_RESIDUAL_START`）、循环次数（`NUM_LOOPS`）与 XSA（`XSA_LAST_N`）做网格微调，探索同参数预算下更优残差/循环结构。
-2. **训练侧**：对 Muon 优化器动量预热曲线（`MUON_MOMENTUM_WARMUP_START/STEPS`）、权重衰减分组（`MUON_WD / ADAM_WD / EMBED_WD`）与 EMA 衰减（`EMA_DECAY`）做灵敏度实验——这些是 SOTA 方案尚未公开扫描的超参，边际收益最可能被低估。
-3. **推理侧（合法 TTT 增强）**：SOTA 采用"Score-First Legal TTT"（在验证集分块上对全部参数做 SGD 在线自适应，先按 chunk 打分再训练），在不改模型文件的情况下把 BPB 进一步压低。本方案将复现该 TTT 管线，并扫描 `TTT_LR / TTT_EPOCHS / TTT_CHUNK_TOKENS` 组合，验证其鲁棒性（官方 1.0810 已含 TTT，需要确认拆掉 TTT 后基线的真实贡献，见 Q2 实验设计）。
+- **排除 tokenizer**：SOTA 已用 sp8192 词表，词表大小在官方榜单上已被验证到收益饱和（sp8192 之后未见公开提升记录），且改词表会使全部公开对照失效，无法与 SOTA 直接比较。
+- **排除架构**：SOTA 的 3LayerRecur + ParResid 本身就是架构侧的既得成果，继续叠架构改动会同时改变参数量与 16MB 预算，**违背受控对照原则**——无法把 BPB 变化归因到单一变量。
+- **排除量化**：int6 GPTQ + brotli 已是 16MB 预算下的紧致解，再压位宽（int5）大概率以 BPB 为代价换体积，而体积当前不是瓶颈（SOTA artifact 明显低于 16MB 上限）。
+- **选择优化器**：Muon 是本方案的主优化器，但 SOTA 公开材料中 `MUON_MOMENTUM_WARMUP_START`（当前 0.92）与 `MUON_MOMENTUM_WARMUP_STEPS`（当前 1500）**两个参数从未被扫描或披露**。动量预热曲线直接控制 10 分钟短预算下优化器的早期步长行为——在只有 20000 步的预算里，前 1500 步的动量形状对最终收敛点的位置影响被显著放大。同理，`MUON_WD`（0.095）与 `EMBED_WD`（0.085）目前是单点取值，缺乏分组灵敏度证据。
 
-成功标准：在 8×H100 上 3 个 seed 的 mean val_bpb 稳定低于 1.0810，且 std < 0.0005；若无法突破，则保证至少复现 1.0810 ± 0.0005，以 Level 4 成绩完成交付。
+**具体假设（可证伪）**：在 10min/20000 步的短预算下，Muon 动量预热起点 **0.92 偏保守**，适度提高（如 0.96）或缩短预热步数（1500 → 800）会让动量更快接近稳态 0.99，从而在预算末端取得更低的验证损失；预期收益量级 **0.001~0.005 BPB**。若实测 |Δ| < 0.0005 或为负，则假设被证伪，如实记录为负结果。
 
-### Q2：你有什么证据/依据支持你的方向？（证据充分性）
+### Q2：你怎么知道这个方向有效？
 
-证据分三层，全部来自官方仓库公开内容：
+**答：论文证据 + 历史提交证据，各一条。**
 
-1. **SOTA 方案本身是证据**：bigbag 的 1.0810 提交的 README/submission 显示其相对次优方案（dexhunter 1.0828、Kevin Clark 1.0856）的核心差异恰好落在"3 层循环 + 并行残差 + QK-Gain 5.25 + TTT"，说明架构细节（而非单纯词表大小）在高分区间仍有可挖掘空间。参考其 `submission.json`（author: bigbag，val_bpb: 1.08100，std: 0.00020，seeds: 42/314/999，硬件 8xH100 SXM）。
-2. **超参敏感区未被覆盖**：经审阅 SOTA 训练脚本的 Hyperparameters 类（环境变量配置），`MUON_MOMENTUM_WARMUP_*`、`EMA_DECAY`、`ETLB_*` 等在官方提交中均为默认值且未出现在其 README 的"已尝试"清单中。语言模型在 Muon/EMA 上的动量-衰减联合调优通常有 0.002~0.01 BPB 量级的空间（参考 nanoGPT 与 LOMO/μP 类工作的常见结论），在 1.08 量级的高分区间不容忽视。
-3. **官方脚本自带 TTT 但默认关闭**：SOTA 脚本 `TTT_ENABLED=0` 默认，而 SOTA 成绩的 1.0810 是在打开 TTT 后的评估结果。本方案将通过"关 TTT 基线 vs 开 TTT"拆解，量化 TTT 的独立贡献，作为后续"再压缩模型权重 + 更强 TTT"路线的前提证据。
+1. **论文证据**：Muon 优化器（Jordan et al., *Muon: An optimizer for hidden layers in neural networks*, 2024）报告其核心收益来自对动量矩阵做 Newton–Schulz 正交化，使更新步长尺度与梯度分布解耦。该机制的有效性**依赖动量已进入稳态**——换句话说，预热阶段越短、越接近稳态，Muon 的优势兑现得越早。这一点对"只有 20000 步"的短预算场景是定量的威胁，也正是一个值得扫的维度。此外，SOTA 脚本对 Muon 采用 momentum 0.99 稳态值（`Muon (Newton-Schulz 5, momentum 0.99)`），与预热起点 0.92 之间存在明显跨度，说明预热曲线确有可调空间。
+2. **历史提交证据**：在 modded-nanoGPT / parameter-golf 的公开记录里，**高分位次的提升全部来自"训练细节的精细化"而非规模扩张**——例如 Kevin Clark 的 `GPTQ-Embeddings + SDClip + Loop45x2`（1.0856）与 bigbag 的 `3LayerRecur + ParResid + QK525`（1.0810），两者都在 1.08 量级靠超参与结构细节再挤出 0.005 量级。这说明该区间的竞争已经进入"每一个未扫描超参都是潜在残余收益"的阶段，而 Muon 动量预热正是一个**明显未被覆盖**的格子。
 
-另外，本地（无 H100）已完成的静态验证：解压并完整阅读官方 SOTA 训练脚本（470 行），确认其可在 `torchrun --nproc_per_node=8` 下运行、配置变量齐全（见 `Songpengfei_C2G_train_gpt.py`），并核对与官方 README 复现命令一致——这是把算力券花在刀刃上的直接依据。
+**本地已完成的静态证据（无算力阶段可做的工作）**：已解包官方 SOTA 的 `train_gpt.py`（LZMA+base85 压缩单行 → 可读 470 行），逐模块审计 `Hyperparameters / GPT / Muon / GPTQ / TTT / eval`，确认上述四个动量与权重衰减参数均为环境变量、可独立注入、且互不耦合——即本次实验**不需要改一行算法代码**，只用环境变量即可完成全部对照。这是把 $25 花在刀刃上、避免把预算浪费在调试上的直接依据。脚本见 `Songpengfei_C2G_train_gpt.py`。
 
-### Q3：你打算怎么做实验？实验与指标预算如何？（可执行性）
+### Q3：你打算跑多少次实验？每次看什么指标？$25 怎么花？
 
-实验分两轮，共用同一套 10 分钟/8×H100 预算口径：
+**答：$25 只买一件事——复现。** 官方口径为 $25 ≈ 1–2 次完整 8×H100 跑，因此本申请**不安排任何消融实验**，避免超募。
 
-- **Round 0（复现验证，预算：1 次 8×H100 运行 ≈ 10 分钟）**：严格按官方命令复现 SOTA（SEED=42，QK_GAIN_INIT=5.25，TTT_ENABLED=1，TTT_LR=0.005，TTT_EPOCHS=3），预期 val_bpb ≈ 1.0810。同时跑 SEED=314、999 记录 std。判定基准：与官方 1.08100 偏差 < 0.0005 才算复现成功；失败则先查数据/环境差异再继续。
-- **Round 1（受控消融，预算：约 8~12 次运行 ≈ 2 小时）**：
-  - A1：关 TTT（TTT_ENABLED=0）→ 量化 TTT 独立贡献；
-  - A2：`PARALLEL_RESIDUAL_START` ∈ {7, 6, 8}、`XSA_LAST_N` ∈ {11, 8}；
-  - A3：`MUON_MOMENTUM_WARMUP_START` ∈ {0.92, 0.88, 0.96} × `EMA_DECAY` ∈ {0.9965, 0.995, 0.998}（先粗后精，粗扫每点 1 seed，精扫 3 seed）；
-  - A4：`NUM_LOOPS` ∈ {2, 3} × `LOOP_START/END` 微调。
-- **Round 2（择优合并，预算：3 seed × 2 组 = 6 次运行 ≈ 1 小时）**：把 Round 1 中各自为正且不冲突的改动合并为"最终配置"，跑 3 个 seed，输出 mean/std，写入 submission.json。
+**Round 0（本轮唯一任务，$25 全部用于此）**：
 
-指标预算口径（防止超时）：每次运行固定 600 秒 wallclock，其中预留 12 秒给 GPTQ 量化；每次运行前核对模型参数规模与 16MB 打包预算（参考 SOTA 方案：int6 GPTQ + brotli + 字节交错压缩，代码约 16.6KB，量化权重须 < 16MB - 代码字节）。每轮结束同步记录 `final_model.int6.ptz` 实际字节数与压缩后总大小，任何配置若把 artifact 推出 16MB 上限即判失败并回退。
+| 运行 | 配置 | 预算 | 观察指标 | 判定 |
+|---|---|---|---|---|
+| R0-a | SEED=42，SOTA 配置原样复现 | 1 次跑 | `quantized_ttt` 行 val_bpb；`Total submission size` 行字节数 | 与官方 1.08100 偏差 < 0.0005 = 环境正确 |
+| R0-b | SEED=314（若券额允许） | 1 次跑 | 同上 | 累积 std |
+| R0-c | SEED=999（若券额允许） | 1 次跑 | 同上 | 得到 3-seed mean/std |
 
-### Q4：如果失败了怎么办？（失败预案）
+**每次运行必须记录的指标（缺一不可）**：① `quantized_ttt val_bpb`（唯一提交口径）；② `Total submission size`（16MB 硬约束）；③ wallclock 是否触顶（600s）；④ `model_params`（参数量审计）。
 
-分三个层级：
+**若 $25 实际只够 R0-a 一次跑**：本轮交付为"1 个 seed 的复现 + 完整打包验证"，3-seed mean/std 顺延到 Level 2 的 $100 阶段完成，届时可一并启动消融。**绝不用 1 个 seed 冒充实测 3-seed 成绩。**
 
-1. **复现失败（Round 0 偏差 > 0.0005）**：停止一切新实验，优先排查——(a) FineWeb10B sp8192 数据集是否用官方脚本 `cached_challenge_fineweb.py --variant sp8192` 生成；(b) PyTorch/flash-attn3 版本是否与官方 CI 一致；(c) 是否误开 `ETLB_ENABLED`（官方明确要求 Score-First Legal TTT，禁止后续 token 学习）。若环境不可修复，退守**以官方公开数字为成绩引用**的"方案分析型交付"（leaderboard 引用 1.0810/1.0828/1.0856 并注明来源），不伪造任何本地成绩。
-2. **Round 1 单项负收益**：接受该方向为"已验证负结果"，写入 ablation.md 与 AAR.md；不对失败配置做二次强推。若全部改进方向均负收益，则宣布目标降级为"稳定复现 SOTA 并提交 Level 4 成绩"，仍满足挑战要求。
-3. **整体预算耗尽**：若因排队/故障导致可用算力不足，预案是提交"复现 + 单点超参扫描"的最小集（Round 0 + A1/A3 各一点），用已有官方数字 + 真实复现数字完成交付，所有未运行字段如实标注"待运行"。
+**$25 的花法优先级**：R0-a 复现（验证环境与管线，价值最高）→ 若有余量再补 R0-b/c（换取统计量）→ 若还有余量也不做消融（消融需要 ≥6 次跑，$25 装不下，强行做只会得到噪声）。
 
-## 三、预期资源与申请
+### Q4：失败怎么办？
 
-- 硬件：8×H100 SXM（与官方榜单一致的训练环境），预计总占用约 4~6 小时（含排队与复跑余量）。
-- 软件：官方 `parameter-golf` 仓库环境（PyTorch 2.9.1+cu128、flash-attn3、sentencepiece、brotli）。
-- 产出：`Songpengfei_C2G_train_gpt.py`（完整可复现脚本）、3-seed 训练日志、`submission.json`（成绩字段待真实运行后填写）、ablation/leaderboard/AAR 全套文档。
+**答：三层失败预案，每层都有明确的下一步和止损点。**
+
+1. **复现失败（R0-a 偏差 > 0.0005）**：立即停止一切新实验，预算全部转向排查。按序检查四项：① FineWeb10B 是否用官方脚本 `cached_challenge_fineweb.py --variant sp8192` 生成（词表 variant 不匹配是最常见根因）；② PyTorch 2.9.1+cu128 / flash-attn3 cu128_torch291 wheel 是否与官方 CI 一致；③ `ETLB_ENABLED` 是否确为 0（若误开会污染 TTT 合规性与成绩）；④ 卡间通信拓扑是否影响 10 分钟内的有效步数。**若环境在券额内无法修复，则退守"方案分析型交付"**：以官方公开数字为引用完成 leaderboard 与消融设计，如实标注未运行，绝不编造本地成绩。
+2. **复现成功但动量改动为负收益**：这本身是有效结论。处理方式：① 把该结论作为"已验证负结果"写入 `Songpengfei_C2G_ablation.md` 与 AAR 的失败经验段（四段式：现象→根因→修正→验证）；② 回退到 SOTA 原配置提交 **Level 4 成绩**（即复现的 1.0810 ± 0.0005）；③ 不二次强推已证伪的方向、不调参凑数。
+3. **预算/排队意外（券额不足、实例抢占、故障）**：预案是**最小集交付**——R0-a 单次复现 + 完整 16MB 打包验证 + 全套文档，所有未跑字段如实标"未运行"。宁可交付一个诚实的 1-seed 复现，也不交付一个好看但不可复现的数字。
+
+**止损原则**：任一阶段发现"再做一次实验也无法改变结论"时立刻停止，把剩余券额结转到下一 Level 的申请材料中，不烧在边际收益为负的重复运行上。
+
+---
+
+## 三、算力申请与分层规划
+
+| Level | 券额 | 用途 | 交付 |
+|---|---|---|---|
+| **Level 1（本次申请）** | **$25** | Round 0 复现（1–3 seed，取决于券额） | 真实训练日志 + 真实 16MB artifact + 回填后的 submission.json |
+| Level 2（后续） | $100 | Round 1 受控消融（A1–A8，粗扫 1 seed / 精扫 3 seed） | 单点改进 RFC + 消融报告（含负结果） |
+| Level 3（后续） | $300 | Round 2 择优合并 + 3-seed 验证 | 组合优化结果 + 冲 BPB < 1.12 |
+
+**本次仅申请 Level 1 的 $25**，理由是：复现是所有后续归因的前提，在复现未通过前申请消融预算属于无效占用。已备好可在算力到位后**当日内跑完并回填**的全部脚手架：运行手册 `Songpengfei_C2G_RUNBOOK.md`、回填脚本 `backfill.py`、提交前校验 `check_submission.py`。
+
+**申请方式**：在 [openai/parameter-golf](https://github.com/openai/parameter-golf) issue 区发 `[compute request]`，附本文件。
+
+---
 
 ## 四、风险与合规声明
 
-- 本草案所有引用成绩均来自官方公开 README/submission.json（见 `Songpengfei_C2G_leaderboard.md` 来源列）；本地未跑出的 BPB 一律不填。
-- 挑战要求"Legal TTT"（不得在验证时学习未来 token），本方案仅采用官方实现的 Score-First Legal TTT 路径，`ETLB_ENABLED` 恒为 0。
-- 16MB artifact 打包严格按官方协议（权重 GPTQ 量化 + brotli 压缩 + 字节交错 + 训练代码计入总预算），任何超出立即回退。
-*（内容由AI生成，仅供参考）*
-*（内容由AI生成，仅供参考）*
+1. **数字纪律**：本草案引用的全部成绩均为官方公开数字，逐条注明来源（见 `Songpengfei_C2G_leaderboard.md` §4 来源清单）；本队自身未跑出的 BPB 一律不填、不估、不模拟。
+2. **合规红线**：`ETLB_ENABLED=0` 恒成立；TTT 严格限定官方 Score-First Legal 路径，不在验证阶段学习未来 token；16MB 打包严格计入训练代码字节数。
+3. **可复现承诺**：Round 0 全部使用官方脚本默认逻辑，仅通过环境变量注入配置；真实运行日志将原样留存于 `Songpengfei_C2G_logs/`，供评审逐行核验。

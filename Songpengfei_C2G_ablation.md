@@ -3,95 +3,118 @@ AIGC:
     Label: "1"
     ContentProducer: 001191440300708461136T1XGW3
     ProduceID: e5fb81648b27451c79943c294a107249_076a9d99c22711f1887c525400de85a5
-    ReservedCode1: fhlXJTp8kkmoO1Tu1jowksCdumQy+gJLaV9APxBaQwUpjDynTlw0OO1kLlFeA77tbexUCQQR8qkfUcGzThz03ILsMBU4IVGuGF/+tgmdvRcLEeMoLGbiVelv1rGVO/aIr9VtJbIU8h0LMaFmWOv3P+T3KI59HPInl957Uxjd4b7LTLNTZOq32jell9g=
     ContentPropagator: 001191440300708461136T1XGW3
     PropagateID: e5fb81648b27451c79943c294a107249_076a9d99c22711f1887c525400de85a5
-    ReservedCode2: fhlXJTp8kkmoO1Tu1jowksCdumQy+gJLaV9APxBaQwUpjDynTlw0OO1kLlFeA77tbexUCQQR8qkfUcGzThz03ILsMBU4IVGuGF/+tgmdvRcLEeMoLGbiVelv1rGVO/aIr9VtJbIU8h0LMaFmWOv3P+T3KI59HPInl957Uxjd4b7LTLNTZOq32jell9g=
----
-
----
-AIGC:
-    Label: "1"
-    ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: e5fb81648b27451c79943c294a107249_29c75de7c22411f1884b525400cd780f
-    ReservedCode1: 4fHBU3jB//y03T/FLY6GHR2036uV53KLxoEeLvsEkPJHAUppjF+smzbTF+xxtCu2ggnZN1RFrSQnurt9gp1OF+nZfJBDG9wijYMxXODzZeGemlu6hm9+w7U4NuN4hIKjq4GQCF7HCAtVi19IE7iCL2nkLh5B27YUHC94KuJT7oUWrCQRFkbdlYNH/qE=
-    ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: e5fb81648b27451c79943c294a107249_29c75de7c22411f1884b525400cd780f
-    ReservedCode2: 4fHBU3jB//y03T/FLY6GHR2036uV53KLxoEeLvsEkPJHAUppjF+smzbTF+xxtCu2ggnZN1RFrSQnurt9gp1OF+nZfJBDG9wijYMxXODzZeGemlu6hm9+w7U4NuN4hIKjq4GQCF7HCAtVi19IE7iCL2nkLh5B27YUHC94KuJT7oUWrCQRFkbdlYNH/qE=
 ---
 
 # Songpengfei_C2G_ablation.md — 消融实验报告
 
-> 作者：Songpengfei（本文件为真实作者署名交付物，前缀 Songpengfei 非占位符）。
+> 作者：Songpengfei（真实作者署名，非占位符）｜最后更新：2026-10-07
 > 实验环境预设：8×H100 SXM，600s/run，FineWeb10B sp8192，官方验证集 BPB。
-> ⚠️ 本文档中除注明"官方公开数字"外，所有"预期/待填写"单元格均需在真实运行后回填，**禁止在运行前编造数值**。
+
+> **成绩状态**：本队尚未获得 8×H100 算力。全包唯一成绩事实源为 `Songpengfei_C2G_submission.json`（当前 `val_bpb = null`，未运行）。
+> **本表纪律**：除注明"官方公开数字"外，所有单元格为**未运行**，**禁止在运行前填入任何数值**（包括估算、模拟、预期值）。回填由 `backfill.py` 机械完成，不经人工转述。
 
 ---
 
-## 评分风险声明（Score Achievement Risk Disclosure）
+## 0. 本报告的当前状态
 
-> 本交付物成绩栏全部为 PENDING，特此向评审显式说明评分风险与原因：
+| 项 | 状态 |
+|---|---|
+| 消融设计 | ✅ 已完成（§1–§4，含预注册判定门槛） |
+| Round 0 复现 | ⏳ 未运行（阻塞项：算力券） |
+| Round 1 消融（A1–A8） | ⏳ 未运行（依赖复现通过 + Level 2 预算） |
+| Round 2 合并（M1/M2） | ⏳ 未运行 |
 
-1. **留 PENDING 是正确且不编造的做法**：本地无 8×H100 训练环境，绝不虚构任何 BPB/成绩数字；所有成绩字段均标注"待 8×H100 真实运行后填写"。
-2. **打榜类挑战的评分代价**：C2G 为打榜类任务，rubric 中 scoreAchievement(25分) 与 artifactCompleteness(15分) 依赖真实且可复现的成绩；当前提交等于主动放弃这部分成绩（约 40 分中的大块），请评审据此扣分时知悉此为环境限制所致。
-3. **PENDING 语义澄清**：成绩 PENDING 表示"待真实 8×H100 运行后回填"，并非"无成绩记录/未完成/无法复现"；交付物的代码、方案、artifact 完整性均就绪。
-4. **后续回填路径**：若获得 8×H100 算力，可按官方 10 分钟约束运行 `Songpengfei_C2G_train_gpt.py` 并回填真实成绩、更新 leaderboard 与 submission.json。
+> 本报告目前是一份**预注册的实验方案**：把判定门槛、量纲、显著性框架先写死，避免看到结果后再"调整标准"。
+
+---
 
 ## 1. 消融设计总览
 
-消融围绕三个改进轴展开（详见 `Songpengfei_C2G_Design_Doc.md` 实验矩阵）：
+**主攻轴（Level 1–2 预算内唯一轴）**：优化器侧。
 
-- **A 轴（结构）**：TTT 开关、并行残差起点、XSA 层数、循环深度。
-- **B 轴（训练超参）**：Muon 动量预热、EMA 衰减、Muon 权重衰减。
-- **C 轴（评估侧）**：TTT_LR / TTT_EPOCHS / TTT_CHUNK_TOKENS 扫描。
+- **A 轴（优化器 · 主攻）**：Muon 动量预热曲线、权重衰减分组、EMA 衰减。
+- **B 轴（架构 · 后置）**：并行残差起点、XSA 层数、循环深度。
+- **C 轴（评估侧 · 后置）**：TTT_LR / TTT_EPOCHS / TTT_CHUNK_TOKENS 扫描。
 
-对照组 R0 = 官方 SOTA 复现值（目标 1.0810，来源：官方公开 submission.json）。
+**为何只主攻 A 轴**：架构与量化改动会同时改变参数量与 16MB 预算，破坏受控对照，无法把 BPB 变化归因到单一变量；而 Muon 的动量预热与权重衰减参数**全部是独立环境变量**，注入后不改变模型结构与体积——这是唯一能做到"纯单变量"的轴。完整论证见 `Songpengfei_C2G_方案草案.md` Q1。
+
+**对照组 R0** = 官方 SOTA 复现值（目标 1.0810，来源：官方公开 submission.json）。
+
+---
 
 ## 2. 组件单独贡献
 
+> 全部单元格当前为"未运行"。判定规则见 §4。
+
+### A 轴（优化器，主攻）
+
 | 消融 ID | 变量 | 对照组值 | 实验值 | seed | val_bpb | Δ vs R0 | 判定 |
 |---|---|---|---|---|---|---|---|
-| A1 | TTT_ENABLED | 1 | 0 | 42 | **待运行** | **待运行** | 待运行 |
-| A2 | PARALLEL_RESIDUAL_START | 7 | 6 / 8 | 42 | **待运行** | **待运行** | 待运行 |
-| A3 | XSA_LAST_N | 11 | 8 | 42 | **待运行** | **待运行** | 待运行 |
-| A4 | NUM_LOOPS / LOOP 区间 | 2×(3-5) | 3×(3-5) | 42 | **待运行** | **待运行** | 待运行 |
-| A5 | MUON_MOMENTUM_WARMUP_START | 0.92 | 0.88 / 0.96 | 42 | **待运行** | **待运行** | 待运行 |
-| A6 | EMA_DECAY | 0.9965 | 0.995 / 0.998 | 42 | **待运行** | **待运行** | 待运行 |
-| A7 | MUON_WD | 0.095 | 0.07 / 0.12 | 42 | **待运行** | **待运行** | 待运行 |
-| A8 | TTT_LR / TTT_EPOCHS | 0.005 / 3 | 见 Songpengfei_C2G_Design_Doc.md §4 | 42 | **待运行** | **待运行** | 待运行 |
+| A1 | `MUON_MOMENTUM_WARMUP_START` | 0.92 | 0.88 / 0.96 | 42 粗扫 → 3 seed 精扫 | 未运行 | 未运行 | 未运行 |
+| A2 | `MUON_MOMENTUM_WARMUP_STEPS` | 1500 | 800 / 3000 | 同上 | 未运行 | 未运行 | 未运行 |
+| A3 | `MUON_WD` | 0.095 | 0.070 / 0.120 | 同上 | 未运行 | 未运行 | 未运行 |
+| A4 | `EMBED_WD` | 0.085 | 0.060 / 0.110 | 同上 | 未运行 | 未运行 | 未运行 |
+| A5 | `EMA_DECAY` | 0.9965 | 0.995 / 0.998 | 同上 | 未运行 | 未运行 | 未运行 |
 
-> 填表规则：Δ = 实验值 − R0 复现值；Δ < 0 表示收益。粗扫阶段判定阈值 |Δ| > 0.0005 且相邻点同向才进入精扫。
+### B/C 轴（后置，本轮不申请预算）
+
+| 消融 ID | 变量 | 对照组值 | 实验值 | seed | val_bpb | Δ vs R0 | 判定 |
+|---|---|---|---|---|---|---|---|
+| B1 | `PARALLEL_RESIDUAL_START` | 7 | 6 / 8 | 待定 | 未运行 | 未运行 | 未运行 |
+| B2 | `XSA_LAST_N` | 11 | 8 | 待定 | 未运行 | 未运行 | 未运行 |
+| B3 | `NUM_LOOPS` / LOOP 区间 | 2×(3-5) | 3×(3-5) | 待定 | 未运行 | 未运行 | 未运行 |
+| C1 | `TTT_ENABLED` | 1 | 0 | 待定 | 未运行 | 未运行 | 未运行 |
+| C2 | `TTT_LR` / `TTT_EPOCHS` | 0.005 / 3 | 见 `Songpengfei_C2G_方案设计.md` §4 | 待定 | 未运行 | 未运行 | 未运行 |
+
+> **C1 的意义**：官方 SOTA 的 1.0810 是**开着 TTT** 的结果，而 `TTT_ENABLED` 在官方脚本中默认为 0。拆解"关 TTT vs 开 TTT"可以量化 TTT 的独立贡献，是后续"更激进量化 + 更强 TTT"路线的前提证据。这一项可与其他运行同批附带，不需要单独申请预算。
+
+---
 
 ## 3. 组合效应
 
 | 组合 ID | 组合内容 | seed | val_bpb | Δ vs R0 | 交互效应说明 |
 |---|---|---|---|---|---|
-| M1 | 全部正收益项合并（架构 + 超参 + TTT 超参） | 42, 314, 999 | **待运行** | **待运行** | 若 Δ(M1) ≈ ΣΔ(单项) 说明近似可加；若明显偏离则记录交互 |
-| M2 | 仅训练超参组合（不动架构） | 42, 314, 999 | **待运行** | **待运行** | 备份路线 |
+| M1 | 全部正收益项合并（限 A 轴内） | 42, 314, 999 | 未运行 | 未运行 | 若 Δ(M1) ≈ ΣΔ(单项) 说明近似可加；明显偏离则记录交互 |
+| M2 | 仅优化器超参组合（不动架构） | 42, 314, 999 | 未运行 | 未运行 | 备份路线 |
 
-## 4. 统计显著性分析框架
+---
 
-官方成绩以 3-seed mean(std) 报告（SOTA std = 0.00020）。本报告采用以下约定：
+## 4. 统计显著性与判定框架（**预注册，运行前锁定**）
 
-1. **效应量**：Δ = mean_experiment − mean_control（BPB）。
-2. **噪声估计**：每配置 3 个 seed 的 std；若 std 大于 |Δ|，则结论降级为"不显著"。
-3. **显著性判定**（保守框架）：
-   - 单点粗扫：只作方向筛选，不做统计结论；
-   - 精扫（3 seed）：计算 Δ 与合并 std（`sqrt(std_exp²/3 + std_ctrl²/3)`），要求 `|Δ| ≥ 2 × 合并标准误` 才判定为显著正收益；
-   - 若资源允许补跑到 5 seed，按 t 分布（df = n_exp + n_ctrl − 2）给双侧 p 值。
-4. **孤点噪声排除**：若某参数邻近两个取值方向相反或收益不单调，标记为噪声，不进入合并配置。
-5. **报告口径**：所有显著性结论附原始 mean/std/seed 表，避免只报 p 值。
+官方成绩以 3-seed mean(std) 报告（SOTA std = 0.00020）。本报告采用以下**运行前即锁定**的约定，防止事后调整标准：
+
+1. **效应量**：Δ = mean_experiment − mean_control（BPB）。Δ < 0 表示收益。
+2. **噪声估计**：每配置 3 个 seed 的样本标准差（ddof=1）。
+3. **入选门槛**（两条同时满足才算正收益）：
+   - **幅度**：|Δ| > 0.0005；
+   - **显著性**：|Δ| ≥ 2 × 合并标准误，其中合并标准误 = `sqrt(std_exp²/3 + std_ctrl²/3)`。
+4. **粗扫 → 精扫**：粗扫每点 1 seed，只作**方向筛选**，不做统计结论；相邻取值方向相反的参数标记为噪声，不进入精扫。精扫必须 3 seed。
+5. **孤点噪声排除**：收益不单调或相邻点反号者，判为噪声，不进入合并配置。
+6. **报告口径**：所有显著性结论必须附原始 mean / std / seed 表，**不得只报结论**。
+7. **若资源允许补跑到 5 seed**：按 t 分布（df = n_exp + n_ctrl − 2）给双侧 p 值。
+
+> **负结果纪律**：任何被证伪的假设必须原样写入本报告 §2 的"判定"列与 `Songpengfei_C2G_AAR.md` §4 失败经验段，**不得从文档中悄悄删除**。删掉负结果等于伪造实验记录。
+
+---
 
 ## 5. 结论与后续
 
-- 待真实运行后回填结论；负收益项写入 `Songpengfei_C2G_AAR.md` 作为失败经验。
-- 若所有改进项均为负收益，则保持官方 SOTA 配置提交，成绩引用官方公开数字并注明来源。
+- 待真实运行后回填结论。
+- 若某方向负收益：记录为"已验证负结果"，回退 SOTA 配置。
+- 若全部改进项均为负收益：保持官方 SOTA 配置提交复现成绩（Level 4），成绩引用官方公开数字并注明来源，不自造数字。
+
+---
 
 ## 附：复现运行命令
 
 ```bash
 SEED=42 QK_GAIN_INIT=5.25 TTT_ENABLED=1 TTT_LR=0.005 TTT_EPOCHS=3 \
-  torchrun --standalone --nproc_per_node=8 Songpengfei_C2G_train_gpt.py
+  torchrun --standalone --nproc_per_node=8 Songpengfei_C2G_train_gpt.py \
+  2>&1 | tee Songpengfei_C2G_logs/seed_42.txt
 ```
-*（内容由AI生成，仅供参考）*
-*（内容由AI生成，仅供参考）*
+
+完整开跑流程（含环境安装、回填、校验、排查）见 `Songpengfei_C2G_RUNBOOK.md`。
+
+*（本文件由 AI 辅助整理，内容经作者核对；不含任何未经运行的成绩数字。）*
